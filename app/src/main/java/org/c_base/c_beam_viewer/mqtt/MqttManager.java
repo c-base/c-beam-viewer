@@ -3,6 +3,14 @@ package org.c_base.c_beam_viewer.mqtt;
 import android.content.Context;
 import android.util.Log;
 
+import javax.net.SocketFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.UUID;
 
 import org.c_base.c_beam_viewer.MainActivity;
@@ -34,8 +42,8 @@ public class MqttManager implements MqttCallback, IMqttActionListener {
 
         client = createMqttClient();
         client.setCallback(this);
-        MqttConnectOptions options = createMqttConnectOptions();
         try {
+            MqttConnectOptions options = createMqttConnectOptions();
             client.connect(options, null, this);
         } catch (MqttException e) {
             Log.e(LOG_TAG, "Error while connecting to server", e);
@@ -43,15 +51,20 @@ public class MqttManager implements MqttCallback, IMqttActionListener {
     }
 
     private MqttAndroidClient createMqttClient() {
-        String serverUri = "tcp://c-beam.cbrp3.c-base.org:1883";
+        String serverUri = "ssl://c-beam.cbrp3.c-base.org:1884";
         String clientId = "c-beam-viewer-" + UUID.randomUUID();
         return new MqttAndroidClient(context, serverUri, clientId);
     }
 
-    private MqttConnectOptions createMqttConnectOptions() {
+    private MqttConnectOptions createMqttConnectOptions() throws MqttException {
         MqttConnectOptions options = new MqttConnectOptions();
-//        options.setUserName("username");
-//        options.setPassword("password".toCharArray());
+        options.setUserName("username");
+        options.setPassword("password".toCharArray());
+        try {
+            options.setSocketFactory(createSocketFactory());
+        } catch (Exception e) {
+            throw new MqttException(e);
+        }
         options.setCleanSession(true);
         return options;
     }
@@ -98,5 +111,33 @@ public class MqttManager implements MqttCallback, IMqttActionListener {
 
     private String getTopic(String subTopic) {
         return CHANNEL + "/" + subTopic;
+    }
+
+    private SocketFactory createSocketFactory() throws NoSuchAlgorithmException, KeyManagementException {
+        X509TrustManager lameTrustManager = new X509TrustManager() {
+
+            @Override
+            public void checkClientTrusted(final X509Certificate[] chain, final String authType)
+                    throws CertificateException {
+                // Do nothing
+            }
+
+            @Override
+            public void checkServerTrusted(final X509Certificate[] chain, final String authType)
+                    throws CertificateException {
+                // Do nothing
+            }
+
+            @Override
+            public X509Certificate[] getAcceptedIssuers() {
+                // Do nothing
+                return new X509Certificate[0];
+            }
+        };
+
+        SSLContext context = SSLContext.getInstance("TLSv1");
+        context.init(null, new TrustManager[]{lameTrustManager}, null);
+
+        return context.getSocketFactory();
     }
 }
