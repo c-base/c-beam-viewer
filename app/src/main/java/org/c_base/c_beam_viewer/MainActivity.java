@@ -1,12 +1,19 @@
 package org.c_base.c_beam_viewer;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.net.http.SslError;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.TextView;
+import android.view.Window;
+import android.view.WindowManager;
+import android.webkit.SslErrorHandler;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
 import org.c_base.c_beam_viewer.mqtt.MqttManager;
 
@@ -14,7 +21,7 @@ public class MainActivity extends ActionBarActivity {
     private static final String ACTION_OPEN_URL = "open_url";
     private static final String EXTRA_URL = "url";
 
-    private TextView textView;
+    private WebView webView;
 
     public static void openUrl(Context context, String url) {
         Intent intent = new Intent(context, MainActivity.class);
@@ -28,12 +35,29 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        useFullScreenMode();
+
         setContentView(R.layout.activity_main);
 
-        textView = (TextView) findViewById(R.id.textView);
+        webView = (WebView) findViewById(R.id.web_view);
+        configureWebView();
 
         startMqttConnection(this);
         openUrlFromIntent(getIntent());
+    }
+
+    private void useFullScreenMode() {
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+    }
+
+    @SuppressLint("SetJavaScriptEnabled")
+    private void configureWebView() {
+        WebViewClient client = new CbeamViewerWebViewClient();
+        WebSettings settings = webView.getSettings();
+        settings.setJavaScriptEnabled(true);
+        webView.setWebViewClient(client);
     }
 
     @Override
@@ -44,7 +68,7 @@ public class MainActivity extends ActionBarActivity {
 
     private void openUrlFromIntent(Intent intent) {
         String url = intent.getStringExtra(EXTRA_URL);
-        textView.setText(url);
+        webView.loadUrl(url);
     }
 
     private void startMqttConnection(Context context) {
@@ -70,5 +94,17 @@ public class MainActivity extends ActionBarActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public static class CbeamViewerWebViewClient extends WebViewClient {
+        @Override
+        public boolean shouldOverrideUrlLoading(final WebView view, final String url) {
+            return false;
+        }
+
+        @Override
+        public void onReceivedSslError(final WebView view, final SslErrorHandler handler, final SslError error) {
+            handler.proceed();
+        }
     }
 }
