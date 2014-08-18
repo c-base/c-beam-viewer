@@ -48,7 +48,7 @@ public class MqttManager implements MqttCallback, IMqttActionListener {
 
     private MqttAndroidClient createMqttClient() {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
-        String serverUri = sharedPref.getString(SettingsActivity.KEY_PREF_MQTT_URI, "ssl://c-beam.cbrp3.c-base.org:1884");
+        String serverUri = sharedPref.getString(SettingsActivity.KEY_PREF_MQTT_URI, "tcp://c-beam.cbrp3.c-base.org:1883");
         String clientId = "c-beam-viewer-" + UUID.randomUUID();
         return new MqttAndroidClient(context, serverUri, clientId);
     }
@@ -57,12 +57,13 @@ public class MqttManager implements MqttCallback, IMqttActionListener {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
         String userName = sharedPref.getString(SettingsActivity.KEY_PREF_MQTT_USER, "");
         String password = sharedPref.getString(SettingsActivity.KEY_PREF_MQTT_PASSWORD, "");
-        Boolean useTLS = sharedPref.getBoolean(SettingsActivity.KEY_PREF_MQTT_TLS, true);
+        Boolean useTLS = sharedPref.getBoolean(SettingsActivity.KEY_PREF_MQTT_TLS, false);
         MqttConnectOptions options = new MqttConnectOptions();
         options.setUserName(userName);
         options.setPassword(password.toCharArray());
-        if (useTLS) {
+        if (useTLS == true) {
             try {
+            Log.d(LOG_TAG, "Using TLS");
                 options.setSocketFactory(SslUtil.getSocketFactory(context.getResources().openRawResource(R.raw.cacert)));
             } catch (Exception e) {
                 e.printStackTrace();
@@ -114,7 +115,7 @@ public class MqttManager implements MqttCallback, IMqttActionListener {
 
         Toast toast = Toast.makeText(context, text, duration);
         toast.show();
-        Log.e(LOG_TAG, "Connection failed");
+        Log.e(LOG_TAG, "Connection failed" + throwable.getMessage());
     }
 
     private String getTopic(String subTopic) {

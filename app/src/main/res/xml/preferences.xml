@@ -16,12 +16,12 @@
         android:key="pref_key_mqtt_uri"
         android:summary="@string/pref_summary_mqtt_uri"
         android:title="@string/pref_title_mqtt_uri"
-        android:defaultValue="ssl://c-beam.cbrp3.c-base.org:1884" />
+        android:defaultValue="tcp://c-beam.cbrp3.c-base.org:1883" />
 
     <CheckBoxPreference
-        android:key="pref_mqtt_tls"
+        android:key="pref_key_mqtt_tls"
         android:title="@string/pref_title_mqtt_tls"
         android:summary="@string/pref_summary_mqtt_tls"
-        android:defaultValue="true" />
+        android:defaultValue="false" />
 
 </PreferenceScreen>
