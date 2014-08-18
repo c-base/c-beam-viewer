@@ -1,11 +1,14 @@
 package org.c_base.c_beam_viewer.mqtt;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.util.Log;
-
-import java.util.UUID;
+import android.widget.Toast;
 
 import org.c_base.c_beam_viewer.MainActivity;
+import org.c_base.c_beam_viewer.R;
+import org.c_base.c_beam_viewer.SettingsActivity;
 import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
@@ -14,6 +17,7 @@ import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
+import java.util.UUID;
 
 public class MqttManager implements MqttCallback, IMqttActionListener {
     private static final String LOG_TAG = "MqttManager";
@@ -43,15 +47,27 @@ public class MqttManager implements MqttCallback, IMqttActionListener {
     }
 
     private MqttAndroidClient createMqttClient() {
-        String serverUri = "tcp://c-beam.cbrp3.c-base.org:1883";
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+        String serverUri = sharedPref.getString(SettingsActivity.KEY_PREF_MQTT_URI, "ssl://c-beam.cbrp3.c-base.org:1884");
         String clientId = "c-beam-viewer-" + UUID.randomUUID();
         return new MqttAndroidClient(context, serverUri, clientId);
     }
 
     private MqttConnectOptions createMqttConnectOptions() {
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+        String userName = sharedPref.getString(SettingsActivity.KEY_PREF_MQTT_USER, "");
+        String password = sharedPref.getString(SettingsActivity.KEY_PREF_MQTT_PASSWORD, "");
+        Boolean useTLS = sharedPref.getBoolean(SettingsActivity.KEY_PREF_MQTT_TLS, true);
         MqttConnectOptions options = new MqttConnectOptions();
-//        options.setUserName("username");
-//        options.setPassword("password".toCharArray());
+        options.setUserName(userName);
+        options.setPassword(password.toCharArray());
+        if (useTLS) {
+            try {
+                options.setSocketFactory(SslUtil.getSocketFactory(context.getResources().openRawResource(R.raw.cacert)));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
         options.setCleanSession(true);
         return options;
     }
@@ -93,6 +109,11 @@ public class MqttManager implements MqttCallback, IMqttActionListener {
 
     @Override
     public void onFailure(final IMqttToken token, final Throwable throwable) {
+        CharSequence text = "Verbindung zum MQTT-Server fehlgeschlagen";
+        int duration = Toast.LENGTH_LONG;
+
+        Toast toast = Toast.makeText(context, text, duration);
+        toast.show();
         Log.e(LOG_TAG, "Connection failed");
     }
 
