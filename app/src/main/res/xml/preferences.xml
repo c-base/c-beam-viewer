@@ -24,4 +24,10 @@
         android:summary="@string/pref_summary_mqtt_tls"
         android:defaultValue="false" />
 
+    <EditTextPreference
+        android:key="pref_key_default_url"
+        android:summary="@string/pref_summary_default_url"
+        android:title="@string/pref_title_default_url"
+        android:defaultValue="http://c-beam.cbrp3.c-base.org/c-beam-viewer" />
+
 </PreferenceScreen>

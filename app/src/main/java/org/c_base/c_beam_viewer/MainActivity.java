@@ -3,9 +3,12 @@ package org.c_base.c_beam_viewer;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.http.SslError;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Window;
@@ -22,6 +25,7 @@ public class MainActivity extends ActionBarActivity {
     private static final String EXTRA_URL = "url";
 
     private WebView webView;
+    private String LOG_TAG = "MainActivity";
 
     public static void openUrl(Context context, String url) {
         Intent intent = new Intent(context, MainActivity.class);
@@ -68,6 +72,11 @@ public class MainActivity extends ActionBarActivity {
 
     private void openUrlFromIntent(Intent intent) {
         String url = intent.getStringExtra(EXTRA_URL);
+        Log.d(LOG_TAG, "URL: " + url);
+        if (url == null) {
+            SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+            url = sharedPref.getString(SettingsActivity.KEY_PREF_DEFAULT_URL, "http://c-beam.cbrp3.c-base.org/c-beam-viewer");
+        }
         webView.loadUrl(url);
     }
 
