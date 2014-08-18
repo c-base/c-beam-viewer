@@ -4,5 +4,14 @@
     <string name="app_name">c-beam-viewer</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="pref_title_mqtt_user">Benutzername</string>
+    <string name="pref_summary_mqtt_user">Benutzername für MQTT-Server</string>
+    <string name="pref_summary_mqtt_password">Passwort für MQTT-Server</string>
+    <string name="pref_title_mqtt_password">Passwort</string>
+    <string name="settings">Einstellungen</string>
+    <string name="pref_title_mqtt_tls">TLS</string>
+    <string name="pref_summary_mqtt_tls">TLS für MQTT-Verbindung verwenden</string>
+    <string name="pref_summary_mqtt_uri">MQTT-Server URI</string>
+    <string name="pref_title_mqtt_uri">MQTT URI</string>
 
 </resources>

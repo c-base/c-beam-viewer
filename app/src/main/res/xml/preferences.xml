@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <EditTextPreference
+        android:key="pref_key_mqtt_user"
+        android:summary="@string/pref_summary_mqtt_user"
+        android:title="@string/pref_title_mqtt_user" />
+
+    <EditTextPreference
+        android:key="pref_key_mqtt_password"
+        android:summary="@string/pref_summary_mqtt_password"
+        android:title="@string/pref_title_mqtt_password"
+        android:inputType="textPassword" />
+
+    <EditTextPreference
+        android:key="pref_key_mqtt_uri"
+        android:summary="@string/pref_summary_mqtt_uri"
+        android:title="@string/pref_title_mqtt_uri"
+        android:defaultValue="ssl://c-beam.cbrp3.c-base.org:1884" />
+
+    <CheckBoxPreference
+        android:key="pref_mqtt_tls"
+        android:title="@string/pref_title_mqtt_tls"
+        android:summary="@string/pref_summary_mqtt_tls"
+        android:defaultValue="true" />
+
+</PreferenceScreen>

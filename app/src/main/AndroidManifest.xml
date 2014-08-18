@@ -24,6 +24,11 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".SettingsActivity"
+            android:label="@string/settings">
+        </activity>
+
         <!-- MQTT Service -->
         <service android:name="org.eclipse.paho.android.service.MqttService" />
 
