@@ -61,9 +61,8 @@ public class MqttManager implements MqttCallback, IMqttActionListener {
         MqttConnectOptions options = new MqttConnectOptions();
         options.setUserName(userName);
         options.setPassword(password.toCharArray());
-        if (useTLS == true) {
+        if (useTLS) {
             try {
-            Log.d(LOG_TAG, "Using TLS");
                 options.setSocketFactory(SslUtil.getSocketFactory(context.getResources().openRawResource(R.raw.cacert)));
             } catch (Exception e) {
                 e.printStackTrace();
@@ -74,7 +73,7 @@ public class MqttManager implements MqttCallback, IMqttActionListener {
     }
 
     private void subscribe() {
-        String topic = getTopic("test");
+        String topic = getTopic("open");
         try {
             client.subscribe(topic, QOS);
         } catch (MqttException e) {
