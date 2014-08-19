@@ -1,15 +1,20 @@
 package org.c_base.c_beam_viewer.mqtt;
 
-import java.io.*;
-import java.security.*;
-import java.security.cert.*;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.security.KeyStore;
+import java.security.Security;
+import java.security.cert.X509Certificate;
 
-import javax.net.ssl.*;
+import org.spongycastle.cert.X509CertificateHolder;
+import org.spongycastle.cert.jcajce.JcaX509CertificateConverter;
+import org.spongycastle.jce.provider.BouncyCastleProvider;
+import org.spongycastle.openssl.PEMParser;
 
-import org.bouncycastle.cert.X509CertificateHolder;
-import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
-import org.bouncycastle.jce.provider.*;
-import org.bouncycastle.openssl.*;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManagerFactory;
 
 public class SslUtil {
     static SSLSocketFactory getSocketFactory(InputStream certificate) throws Exception {
@@ -17,7 +22,7 @@ public class SslUtil {
 
         // load CA certificate
         PEMParser parser = new PEMParser(new BufferedReader(new InputStreamReader(certificate)));
-        X509Certificate cert = new JcaX509CertificateConverter().setProvider("BC").getCertificate((X509CertificateHolder) parser.readObject());
+        X509Certificate cert = new JcaX509CertificateConverter().setProvider("SC").getCertificate((X509CertificateHolder) parser.readObject());
         parser.close();
 
         // CA certificate is used to authenticate server
