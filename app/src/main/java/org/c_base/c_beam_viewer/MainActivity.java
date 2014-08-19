@@ -3,10 +3,8 @@ package org.c_base.c_beam_viewer;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.http.SslError;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -18,6 +16,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import org.c_base.c_beam_viewer.mqtt.MqttManager;
+import org.c_base.c_beam_viewer.settings.Settings;
 
 public class MainActivity extends ActionBarActivity {
     private static final String LOG_TAG = "MainActivity";
@@ -25,6 +24,7 @@ public class MainActivity extends ActionBarActivity {
     private static final String EXTRA_URL = "url";
 
     private WebView webView;
+    private Settings settings;
 
     public static void openUrl(Context context, String url) {
         Intent intent = new Intent(context, MainActivity.class);
@@ -46,6 +46,8 @@ public class MainActivity extends ActionBarActivity {
 
         webView = (WebView) findViewById(R.id.web_view);
         configureWebView();
+
+        settings = new Settings(this);
 
         startMqttConnection(this);
         openUrlFromIntent(getIntent());
@@ -74,14 +76,9 @@ public class MainActivity extends ActionBarActivity {
         String url = intent.getStringExtra(EXTRA_URL);
         Log.d(LOG_TAG, "URL: " + url);
         if (url == null) {
-            url = getDefaultUrl();
+            url = settings.getStartPage();
         }
         webView.loadUrl(url);
-    }
-
-    private String getDefaultUrl() {
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        return sharedPref.getString(SettingsActivity.KEY_PREF_DEFAULT_URL, "http://c-beam.cbrp3.c-base.org/c-beam-viewer");
     }
 
     private void startMqttConnection(Context context) {

@@ -4,14 +4,12 @@ import java.io.InputStream;
 import java.util.UUID;
 
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
 
 import org.c_base.c_beam_viewer.MainActivity;
 import org.c_base.c_beam_viewer.R;
-import org.c_base.c_beam_viewer.SettingsActivity;
+import org.c_base.c_beam_viewer.settings.Settings;
 import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
@@ -31,10 +29,12 @@ public class MqttManager implements MqttCallback, IMqttActionListener {
     private static final String CLIENT_ID_PREFIX = "c-beam-viewer-";
 
     private final Context context;
+    private final Settings settings;
     private MqttAndroidClient client;
 
-    public MqttManager(Context context) {
+    public MqttManager(Context context, Settings settings) {
         this.context = context;
+        this.settings = settings;
     }
 
     public void startConnection() {
@@ -53,17 +53,15 @@ public class MqttManager implements MqttCallback, IMqttActionListener {
     }
 
     private MqttAndroidClient createMqttClient() {
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
-        String serverUri = sharedPref.getString(SettingsActivity.KEY_PREF_MQTT_URI, "tcp://c-beam.cbrp3.c-base.org:1883");
+        String serverUri = settings.getMqttUri();
         String clientId = CLIENT_ID_PREFIX + UUID.randomUUID();
         return new MqttAndroidClient(context, serverUri, clientId);
     }
 
     private MqttConnectOptions createMqttConnectOptions() {
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
-        String userName = sharedPref.getString(SettingsActivity.KEY_PREF_MQTT_USER, "");
-        String password = sharedPref.getString(SettingsActivity.KEY_PREF_MQTT_PASSWORD, "");
-        Boolean useTLS = sharedPref.getBoolean(SettingsActivity.KEY_PREF_MQTT_TLS, false);
+        String userName = settings.getUserName();
+        String password = settings.getPassword();
+        boolean useTLS = settings.getUseTls();
         MqttConnectOptions options = new MqttConnectOptions();
         options.setUserName(userName);
         options.setPassword(password.toCharArray());
