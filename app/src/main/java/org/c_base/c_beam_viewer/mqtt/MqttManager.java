@@ -1,5 +1,8 @@
 package org.c_base.c_beam_viewer.mqtt;
 
+import java.io.InputStream;
+import java.util.UUID;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
@@ -17,12 +20,15 @@ import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
-import java.util.UUID;
+
+import javax.net.ssl.SSLSocketFactory;
 
 public class MqttManager implements MqttCallback, IMqttActionListener {
     private static final String LOG_TAG = "MqttManager";
     private static final int QOS = 1;
-    public static final String CHANNEL = "c-beam-viewer";
+    private static final String CHANNEL = "c-beam-viewer";
+    private static final String OPEN_URL_TOPIC = "open";
+    private static final String CLIENT_ID_PREFIX = "c-beam-viewer-";
 
     private final Context context;
     private MqttAndroidClient client;
@@ -49,7 +55,7 @@ public class MqttManager implements MqttCallback, IMqttActionListener {
     private MqttAndroidClient createMqttClient() {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
         String serverUri = sharedPref.getString(SettingsActivity.KEY_PREF_MQTT_URI, "tcp://c-beam.cbrp3.c-base.org:1883");
-        String clientId = "c-beam-viewer-" + UUID.randomUUID();
+        String clientId = CLIENT_ID_PREFIX + UUID.randomUUID();
         return new MqttAndroidClient(context, serverUri, clientId);
     }
 
@@ -63,7 +69,9 @@ public class MqttManager implements MqttCallback, IMqttActionListener {
         options.setPassword(password.toCharArray());
         if (useTLS) {
             try {
-                options.setSocketFactory(SslUtil.getSocketFactory(context.getResources().openRawResource(R.raw.cacert)));
+                InputStream certificateInputStream = getCaCertFromResources();
+                SSLSocketFactory socketFactory = SslUtil.getSocketFactory(certificateInputStream);
+                options.setSocketFactory(socketFactory);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -73,7 +81,7 @@ public class MqttManager implements MqttCallback, IMqttActionListener {
     }
 
     private void subscribe() {
-        String topic = getTopic("open");
+        String topic = getTopic(OPEN_URL_TOPIC);
         try {
             client.subscribe(topic, QOS);
         } catch (MqttException e) {
@@ -109,15 +117,21 @@ public class MqttManager implements MqttCallback, IMqttActionListener {
 
     @Override
     public void onFailure(final IMqttToken token, final Throwable throwable) {
-        CharSequence text = "Verbindung zum MQTT-Server fehlgeschlagen";
-        int duration = Toast.LENGTH_LONG;
-
-        Toast toast = Toast.makeText(context, text, duration);
-        toast.show();
+        showErrorMessage(R.string.connection_to_server_failed);
         Log.e(LOG_TAG, "Connection failed" + throwable.getMessage());
+    }
+
+    private void showErrorMessage(int errorMessageResId) {
+        String text = context.getString(errorMessageResId);
+        Toast toast = Toast.makeText(context, text, Toast.LENGTH_LONG);
+        toast.show();
     }
 
     private String getTopic(String subTopic) {
         return CHANNEL + "/" + subTopic;
+    }
+
+    private InputStream getCaCertFromResources() {
+        return context.getResources().openRawResource(R.raw.cacert);
     }
 }

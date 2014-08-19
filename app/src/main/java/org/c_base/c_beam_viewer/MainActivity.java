@@ -11,7 +11,6 @@ import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.Window;
 import android.view.WindowManager;
 import android.webkit.SslErrorHandler;
 import android.webkit.WebSettings;
@@ -21,11 +20,11 @@ import android.webkit.WebViewClient;
 import org.c_base.c_beam_viewer.mqtt.MqttManager;
 
 public class MainActivity extends ActionBarActivity {
+    private static final String LOG_TAG = "MainActivity";
     private static final String ACTION_OPEN_URL = "open_url";
     private static final String EXTRA_URL = "url";
 
     private WebView webView;
-    private String LOG_TAG = "MainActivity";
 
     public static void openUrl(Context context, String url) {
         Intent intent = new Intent(context, MainActivity.class);
@@ -75,10 +74,14 @@ public class MainActivity extends ActionBarActivity {
         String url = intent.getStringExtra(EXTRA_URL);
         Log.d(LOG_TAG, "URL: " + url);
         if (url == null) {
-            SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-            url = sharedPref.getString(SettingsActivity.KEY_PREF_DEFAULT_URL, "http://c-beam.cbrp3.c-base.org/c-beam-viewer");
+            url = getDefaultUrl();
         }
         webView.loadUrl(url);
+    }
+
+    private String getDefaultUrl() {
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        return sharedPref.getString(SettingsActivity.KEY_PREF_DEFAULT_URL, "http://c-beam.cbrp3.c-base.org/c-beam-viewer");
     }
 
     private void startMqttConnection(Context context) {
@@ -89,22 +92,24 @@ public class MainActivity extends ActionBarActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            startActivity(new Intent(getApplicationContext(), SettingsActivity.class));
-            return true;
+        switch (item.getItemId()) {
+            case R.id.action_settings:
+                startSettingsActivity();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
-        return super.onOptionsItemSelected(item);
+    }
+
+    private void startSettingsActivity() {
+        Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
+        startActivity(intent);
     }
 
     public static class CbeamViewerWebViewClient extends WebViewClient {

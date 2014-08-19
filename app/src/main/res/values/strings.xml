@@ -13,4 +13,6 @@
     <string name="pref_title_mqtt_uri">MQTT URI</string>
     <string name="pref_summary_default_url">for the webview</string>
     <string name="pref_title_default_url">Default URL</string>
+
+    <string name="connection_to_server_failed">Verbindung zum MQTT-Server fehlgeschlagen</string>
 </resources>
