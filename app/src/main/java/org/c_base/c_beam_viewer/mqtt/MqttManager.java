@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.util.UUID;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -63,8 +64,12 @@ public class MqttManager implements MqttCallback, IMqttActionListener {
         String password = settings.getPassword();
         boolean useTLS = settings.getUseTls();
         MqttConnectOptions options = new MqttConnectOptions();
-        options.setUserName(userName);
-        options.setPassword(password.toCharArray());
+        if (!TextUtils.isEmpty(userName)) {
+            options.setUserName(userName);
+        }
+        if (!TextUtils.isEmpty(password)) {
+            options.setPassword(password.toCharArray());
+        }
         if (useTLS) {
             try {
                 InputStream certificateInputStream = getCaCertFromResources();
