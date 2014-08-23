@@ -166,7 +166,7 @@ public class MainActivity extends ActionBarActivity {
     private void selectItem(int position) {
 
         setTitle(mDrawerItems[position]);
-
+        mDrawerLayout.closeDrawer(mDrawerList);
         switch (position) {
             case 0: // CLAMP
                 //startActivity(ClampActivity.class);
@@ -176,7 +176,7 @@ public class MainActivity extends ActionBarActivity {
                 openUrl(getApplicationContext(), "https://wiki.cbrp3.c-base.org/dokuwiki/");
                 break;
             case 2: // CIENCE
-                openUrl(getApplicationContext(), "https://c-beam.cbrp3.c-base.org/weather");
+                openUrl(getApplicationContext(), "http://c-beam.cbrp3.c-base.org/weather");
                 break;
             case 3: // CREACTIV
                 openUrl(getApplicationContext(), "http://c-beam.cbrp3.c-base.org/bvg");
@@ -188,11 +188,12 @@ public class MainActivity extends ActionBarActivity {
                 openUrl(getApplicationContext(), "https://cbag3.c-base.org");
                 break;
             case 6: // CORE
-                openUrl(getApplicationContext(), "https://c-beam.cbrp3.c-base.org/reddit");
+                openUrl(getApplicationContext(), "http://c-beam.cbrp3.c-base.org/reddit");
                 break;
             case 7: // Settings
                 startSettingsActivity();
         }
+
     }
 
     protected class RingAdapter extends ArrayAdapter {
