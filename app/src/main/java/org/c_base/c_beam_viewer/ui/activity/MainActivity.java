@@ -1,4 +1,4 @@
-package org.c_base.c_beam_viewer;
+package org.c_base.c_beam_viewer.ui.activity;
 
 import java.util.ArrayList;
 
@@ -28,6 +28,9 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import org.c_base.c_beam_viewer.CbeamViewerApplication;
+import org.c_base.c_beam_viewer.ui.NavigationDrawerItem;
+import org.c_base.c_beam_viewer.R;
 import org.c_base.c_beam_viewer.mqtt.MqttManager;
 import org.c_base.c_beam_viewer.settings.Settings;
 

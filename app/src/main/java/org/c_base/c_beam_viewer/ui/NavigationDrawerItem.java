@@ -1,4 +1,4 @@
-package org.c_base.c_beam_viewer;
+package org.c_base.c_beam_viewer.ui;
 
 import android.graphics.drawable.Drawable;
 

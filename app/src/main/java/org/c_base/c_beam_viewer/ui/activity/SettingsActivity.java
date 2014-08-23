@@ -1,7 +1,9 @@
-package org.c_base.c_beam_viewer;
+package org.c_base.c_beam_viewer.ui.activity;
 
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
+
+import org.c_base.c_beam_viewer.R;
 
 public class SettingsActivity extends PreferenceActivity {
     public static final String KEY_PREF_MQTT_USER = "pref_key_mqtt_user";

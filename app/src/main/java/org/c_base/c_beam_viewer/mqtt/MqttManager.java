@@ -8,7 +8,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
-import org.c_base.c_beam_viewer.MainActivity;
+import org.c_base.c_beam_viewer.ui.activity.MainActivity;
 import org.c_base.c_beam_viewer.R;
 import org.c_base.c_beam_viewer.settings.Settings;
 import org.eclipse.paho.android.service.MqttAndroidClient;

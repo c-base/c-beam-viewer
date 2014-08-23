@@ -4,7 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
-import org.c_base.c_beam_viewer.SettingsActivity;
+import org.c_base.c_beam_viewer.ui.activity.SettingsActivity;
 
 public class Settings {
     private static final String DEFAULT_MQTT_URI = "tcp://c-beam.cbrp3.c-base.org:1883";
