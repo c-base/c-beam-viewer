@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="drawer_items_array">
+        <item>logbuch</item>
+        <item>coredump</item>
+        <item>weather</item>
+        <item>bvg</item>
+        <item>c-portal</item>
+        <item>artefact guide</item>
+        <item>c-reddit</item>
+        <item>settings</item>
+    </string-array>
+
+    <array name="drawer_images_array">
+        <item>@null</item>
+        <item>@null</item>
+        <item>@null</item>
+        <item>@null</item>
+        <item>@null</item>
+        <item>@null</item>
+        <item>@null</item>
+    </array>
+</resources>

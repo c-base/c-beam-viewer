@@ -3,20 +3,34 @@ package org.c_base.c_beam_viewer;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.TypedArray;
+import android.graphics.Color;
 import android.net.http.SslError;
 import android.os.Bundle;
+import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.webkit.SslErrorHandler;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.TextView;
 
 import org.c_base.c_beam_viewer.mqtt.MqttManager;
 import org.c_base.c_beam_viewer.settings.Settings;
+
+import java.util.ArrayList;
 
 public class MainActivity extends ActionBarActivity {
     private static final String LOG_TAG = "MainActivity";
@@ -25,6 +39,12 @@ public class MainActivity extends ActionBarActivity {
 
     private WebView webView;
     private Settings settings;
+    private DrawerLayout mDrawerLayout;
+    private ListView mDrawerList;
+    private String[] mDrawerItems;
+    private TypedArray mDrawerImages;
+    private ActionBarDrawerToggle mDrawerToggle;
+    private CharSequence mTitle;
 
     public static void openUrl(Context context, String url) {
         Intent intent = new Intent(context, MainActivity.class);
@@ -43,6 +63,8 @@ public class MainActivity extends ActionBarActivity {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         setContentView(R.layout.activity_main);
+
+        setupNavigationDrawer();
 
         webView = (WebView) findViewById(R.id.web_view);
         configureWebView();
@@ -120,4 +142,111 @@ public class MainActivity extends ActionBarActivity {
             handler.proceed();
         }
     }
+
+    protected void setupNavigationDrawer() {
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mDrawerList = (ListView) findViewById(R.id.left_drawer);
+        mDrawerList.setBackgroundColor(Color.argb(120, 0, 0, 0));
+
+        mDrawerItems = getResources().getStringArray(R.array.drawer_items_array);
+        mDrawerImages = getResources().obtainTypedArray(R.array.drawer_images_array);
+
+        ArrayList<Ring> mRings = new ArrayList<Ring>();
+        for (int i = 0; i < mDrawerItems.length; i++) {
+            mRings.add(new Ring(mDrawerItems[i], mDrawerImages.getDrawable(i)));
+        }
+
+        mDrawerList.setAdapter(new RingAdapter(this, R.layout.drawer_list_item,
+                R.id.drawer_list_item_textview, mRings));
+        // Set the list's click listener
+        mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
+
+        mTitle = getTitle();
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+
+        mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, R.drawable.ic_drawer, R.string.drawer_open, R.string.drawer_close) {
+            @Override
+            public void onDrawerOpened(View drawerView) {
+                super.onDrawerOpened(drawerView);
+//                sharedPref.edit().putBoolean(Settings.USER_DISCOVERED_NAVDRAWER, true).commit();
+            }
+        };
+
+        // Set the drawer toggle as the DrawerListener
+        mDrawerLayout.setDrawerListener(mDrawerToggle);
+
+    }
+
+    private void selectItem(int position) {
+
+        setTitle(mDrawerItems[position]);
+
+        switch (position) {
+            case 0: // CLAMP
+                //startActivity(ClampActivity.class);
+                openUrl(getApplicationContext(), "http://logbuch.c-base.org/");
+                break;
+            case 1: // CARBON
+                openUrl(getApplicationContext(), "https://wiki.cbrp3.c-base.org/dokuwiki/");
+                break;
+            case 2: // CIENCE
+                openUrl(getApplicationContext(), "https://c-beam.cbrp3.c-base.org/weather");
+                break;
+            case 3: // CREACTIV
+                openUrl(getApplicationContext(), "http://c-beam.cbrp3.c-base.org/bvg");
+                break;
+            case 4: // CULTURE
+                openUrl(getApplicationContext(), "https://c-portal.c-base.org");
+                break;
+            case 5: // COM
+                openUrl(getApplicationContext(), "https://cbag3.c-base.org");
+                break;
+            case 6: // CORE
+                openUrl(getApplicationContext(), "https://c-beam.cbrp3.c-base.org/reddit");
+                break;
+            case 7: // Settings
+                startSettingsActivity();
+        }
+    }
+
+    protected class RingAdapter extends ArrayAdapter {
+        private static final String TAG = "UserAdapter";
+        private ArrayList<Ring> items;
+        private Context context;
+
+        @SuppressWarnings("unchecked")
+        public RingAdapter(Context context, int itemLayout, int textViewResourceId, ArrayList<Ring> items) {
+            super(context, itemLayout, textViewResourceId, items);
+            this.context = context;
+            this.items = items;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            final View listview = super.getView(position, convertView, parent);
+
+            TextView textView = (TextView) listview.findViewById(R.id.drawer_list_item_textview);
+            Ring r = items.get(position);
+
+            textView.setText(r.getName());
+
+            ImageView b = (ImageView) listview.findViewById(R.id.drawer_ring_imageView);
+
+            b.setImageDrawable(r.getImage());
+            if (r.getImage() == null) {
+                b.setVisibility(View.GONE);
+            }
+            return listview;
+        }
+
+    }
+
+    protected class DrawerItemClickListener implements ListView.OnItemClickListener {
+        @Override
+        public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+            selectItem(position);
+        }
+    }
+
+
 }
