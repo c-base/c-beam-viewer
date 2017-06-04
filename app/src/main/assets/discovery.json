@@ -1,0 +1,27 @@
+{
+  "command": "participant",
+  "protocol": "discovery",
+  "payload": {
+    "component": "c-base/c-beam-viewer",
+    "label": "Show URL on a public screen.",
+    "inports": [
+      {
+        "queue": "demodevice/open",
+        "type": "string",
+        "description": "URL to be opened",
+        "id": "open"
+      }
+    ],
+    "outports": [
+      {
+        "queue": "demodevice/opened",
+        "type": "object",
+        "description": "The URL that has been opened and is showing.",
+        "id": "opened"
+      }
+    ],
+    "role": "demodevice",
+    "id": "demodevice-007",
+    "icon": "tablet"
+  }
+}

@@ -10,7 +10,7 @@ public class Settings {
     private static final String DEFAULT_MQTT_URI = "tcp://c-beam.cbrp3.c-base.org:1883";
     private static final String DEFAULT_USERNAME = "";
     private static final String DEFAULT_PASSWORD = "";
-    public static final String DEFAULT_START_PAGE = "http://c-beam.cbrp3.c-base.org/c-beam-viewer";
+    public static final String DEFAULT_START_PAGE = "https://c-beam.cbrp3.c-base.org/events";
 
     private final SharedPreferences preferences;
 

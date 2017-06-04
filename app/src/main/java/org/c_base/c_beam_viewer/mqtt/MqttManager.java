@@ -1,6 +1,10 @@
 package org.c_base.c_beam_viewer.mqtt;
 
+
+import java.io.IOException;
 import java.io.InputStream;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.UUID;
 
 import android.content.Context;
@@ -8,9 +12,15 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
-import org.c_base.c_beam_viewer.ui.activity.MainActivity;
+import com.squareup.moshi.JsonReader;
+import com.squareup.moshi.JsonWriter;
+import javax.net.ssl.SSLSocketFactory;
+import okio.Buffer;
+import okio.BufferedSource;
+import okio.Okio;
 import org.c_base.c_beam_viewer.R;
 import org.c_base.c_beam_viewer.settings.Settings;
+import org.c_base.c_beam_viewer.ui.activity.MainActivity;
 import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
@@ -20,18 +30,18 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
-import javax.net.ssl.SSLSocketFactory;
 
 public class MqttManager implements MqttCallback, IMqttActionListener {
     private static final String LOG_TAG = "MqttManager";
     private static final int QOS = 1;
-    private static final String CHANNEL = "c-beam-viewer";
+    private static final String CHANNEL = "demodevice";
     private static final String OPEN_URL_TOPIC = "open";
     private static final String CLIENT_ID_PREFIX = "c-beam-viewer-";
 
     private final Context context;
     private final Settings settings;
     private MqttAndroidClient client;
+    private Timer timer;
 
     public MqttManager(Context context, Settings settings) {
         this.context = context;
@@ -100,12 +110,30 @@ public class MqttManager implements MqttCallback, IMqttActionListener {
     @Override
     public void messageArrived(final String topic, final MqttMessage mqttMessage) throws Exception {
         Log.d(LOG_TAG, "Message arrived: " + topic);
-        String url = new String(mqttMessage.getPayload(), "UTF-8");
-        openUrl(url);
+
+        try {
+            Buffer buffer = new Buffer().write(mqttMessage.getPayload());
+            String url = JsonReader.of(buffer).nextString();
+            openUrl(url);
+        } catch (IOException e) {
+            e.printStackTrace();
+
+            String url = new String(mqttMessage.getPayload(), "UTF-8");
+            openUrl(url);
+        }
     }
 
     private void openUrl(final String url) {
         MainActivity.openUrl(context, url);
+        try {
+            Buffer buffer = new Buffer();
+            JsonWriter.of(buffer).value(url);
+            client.publish(CHANNEL + "/opened", buffer.readByteArray(), 0, false);
+        } catch (MqttException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -115,11 +143,51 @@ public class MqttManager implements MqttCallback, IMqttActionListener {
 
     @Override
     public void onSuccess(final IMqttToken token) {
+        if (timer != null) {
+            timer.cancel();
+            timer = null;
+        }
+
+        timer = new Timer();
+        timer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                publishDiscoveryMessage();
+            }
+        }, 0, 60 * 1000);
+
         subscribe();
+    }
+
+    private void publishDiscoveryMessage() {
+        try {
+            byte[] discoveryMessage = loadDiscoveryMessage();
+            client.publish("fbp", discoveryMessage, 0, false);
+        } catch (MqttException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private byte[] loadDiscoveryMessage() {
+        try {
+            InputStream inputStream = context.getResources().getAssets().open("discovery.json");
+            BufferedSource source = Okio.buffer(Okio.source(inputStream));
+            try {
+                return source.readUtf8().replaceAll("\n", "").getBytes("UTF-8");
+            } finally {
+                source.close();
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public void onFailure(final IMqttToken token, final Throwable throwable) {
+        if (timer != null) {
+            timer.cancel();
+            timer = null;
+        }
         showErrorMessage(R.string.connection_to_server_failed);
         Log.e(LOG_TAG, "Connection failed" + throwable.getMessage());
     }
