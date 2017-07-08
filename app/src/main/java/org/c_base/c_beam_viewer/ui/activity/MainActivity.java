@@ -4,16 +4,18 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.net.http.SslError;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.util.Log;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.webkit.SslErrorHandler;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-
 import org.c_base.c_beam_viewer.CbeamViewerApplication;
 import org.c_base.c_beam_viewer.R;
 import org.c_base.c_beam_viewer.mqtt.MqttManager;
@@ -32,8 +34,7 @@ public class MainActivity extends DrawerActivity {
         Intent intent = new Intent(context, MainActivity.class);
         intent.setAction(ACTION_OPEN_URL);
         intent.putExtra(EXTRA_URL, url);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP |
-                Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         context.startActivity(intent);
     }
 
@@ -43,6 +44,19 @@ public class MainActivity extends DrawerActivity {
 
         useFullScreenMode();
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        final View rootView = getWindow().getDecorView();
+
+        final Handler handler = new Handler();
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                if (Build.VERSION.SDK_INT > 10) {
+                    rootView.setSystemUiVisibility(View.STATUS_BAR_HIDDEN); // aka View.SYSTEM_UI_FLAG_LOW_PROFILE
+                }
+                handler.postDelayed(this, 1000);
+            }
+        });
+
 
         setContentView(R.layout.activity_main);
 
@@ -98,8 +112,7 @@ public class MainActivity extends DrawerActivity {
         }
 
         @Override
-        public void onReceivedSslError(final WebView view, @NonNull final SslErrorHandler handler,
-                final SslError error) {
+        public void onReceivedSslError(final WebView view, @NonNull final SslErrorHandler handler, final SslError error) {
             handler.proceed();
         }
     }
