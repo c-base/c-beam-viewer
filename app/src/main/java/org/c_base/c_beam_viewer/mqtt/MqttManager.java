@@ -1,19 +1,17 @@
 package org.c_base.c_beam_viewer.mqtt;
 
 
+import android.content.Context;
+import android.text.TextUtils;
+import android.util.Log;
+import android.widget.Toast;
+import com.squareup.moshi.JsonReader;
+import com.squareup.moshi.JsonWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
-
-import android.content.Context;
-import android.text.TextUtils;
-import android.util.Log;
-import android.widget.Toast;
-
-import com.squareup.moshi.JsonReader;
-import com.squareup.moshi.JsonWriter;
 import javax.net.ssl.SSLSocketFactory;
 import okio.Buffer;
 import okio.BufferedSource;
@@ -104,6 +102,8 @@ public class MqttManager implements MqttCallback, IMqttActionListener {
     @Override
     public void connectionLost(final Throwable throwable) {
         Log.w(LOG_TAG, "Connection lost", throwable);
+        client = null;
+        startConnection();
     }
 
     @Override
