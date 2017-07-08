@@ -34,7 +34,7 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 public class MqttManager implements MqttCallback, IMqttActionListener {
     private static final String LOG_TAG = "MqttManager";
     private static final int QOS = 1;
-    private static final String CHANNEL = "demodevice";
+    private static final String CHANNEL = "hallway-display";
     private static final String OPEN_URL_TOPIC = "open";
     private static final String CLIENT_ID_PREFIX = "c-beam-viewer-";
 
@@ -52,7 +52,6 @@ public class MqttManager implements MqttCallback, IMqttActionListener {
         if (client != null) {
             return;
         }
-
         client = createMqttClient();
         client.setCallback(this);
         MqttConnectOptions options = createMqttConnectOptions();

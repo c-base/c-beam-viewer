@@ -6,7 +6,7 @@
     "label": "Show URL on a public screen.",
     "inports": [
       {
-        "queue": "demodevice/open",
+        "queue": "hallway-display/open",
         "type": "string",
         "description": "URL to be opened",
         "id": "open"
@@ -14,14 +14,14 @@
     ],
     "outports": [
       {
-        "queue": "demodevice/opened",
+        "queue": "hallway-display/opened",
         "type": "object",
         "description": "The URL that has been opened and is showing.",
         "id": "opened"
       }
     ],
-    "role": "demodevice",
-    "id": "demodevice-007",
+    "role": "hallway-display",
+    "id": "hallway-display-001",
     "icon": "tablet"
   }
 }
